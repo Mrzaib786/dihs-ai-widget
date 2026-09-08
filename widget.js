@@ -1,6 +1,6 @@
 (function () {
   // 1. Apni real Gemini API key quotes ke andar paste karein
-  const GEMINI_API_KEY = "AQ.Ab8RN6KgSC0sZQrA9VXRKWisTh9jCwBl0M2aFuXMBegzyl8cXQ"; 
+  const GEMINI_API_KEY = "AQ.Ab8RN6Ic61edvAJePAe0esJgmmNp7qD3Y8AJVGOwSYLVWMt_aA"; 
 
   // 2. DIHS Website Knowledge Base Data
   const SYSTEM_PROMPT = `You are the official AI Admission Assistant for Dow Institute of Health Sciences (DIHS). Answer student queries accurately based on official college information. Keep responses helpful, polite, and concise.`;
