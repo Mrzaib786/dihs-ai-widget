@@ -1,8 +1,8 @@
 (function () {
-  // Apni NEW Gemini API Key bilkul sahi quotes ke andar daalein
+  // Apni Gemini API key yahan Paste karein
   const GEMINI_API_KEY = "AQ.Ab8RN6Ka8xE8fIbOYyCnWSxHeMRBahrN2-xfg9PWSsMrOyaokQ"; 
 
-  const SYSTEM_PROMPT = `You are the official AI Admission Assistant for Dow Institute of Health Sciences (DIHS). Answer student queries accurately based on official college information. Keep responses helpful, polite, and concise.`;
+  const SYSTEM_PROMPT = `You are the official AI Admission Assistant for Dow Institute of Health Sciences (DIHS). Answer student queries accurately and politely based on official college information. Keep responses helpful, polite, and concise.`;
 
   function initWidget() {
     const widgetContainer = document.createElement("div");
@@ -45,12 +45,15 @@
       const loadingMsg = appendMessage("Typing...", "bot");
 
       try {
-        // Updated v1beta endpoint with gemini-1.5-flash
+        // Updated Header Authentication for Google Gemini API
         const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+          "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent",
           {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { 
+              "Content-Type": "application/json",
+              "x-goog-api-key": GEMINI_API_KEY
+            },
             body: JSON.stringify({
               contents: [
                 {
@@ -68,13 +71,12 @@
         if (response.ok && data.candidates && data.candidates[0]?.content?.parts[0]?.text) {
           appendMessage(data.candidates[0].content.parts[0].text, "bot");
         } else {
-          // Exact error details show hongi
-          const errDetail = data.error?.message || "Invalid Response";
+          const errDetail = data.error?.message || "Authentication failed or key invalid.";
           appendMessage(`API Error: ${errDetail}`, "bot");
         }
       } catch (err) {
         loadingMsg.remove();
-        appendMessage("Network connection failed. Please check internet connection.", "bot");
+        appendMessage("Network connection failed. Please try again.", "bot");
       }
     }
 
