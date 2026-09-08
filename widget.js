@@ -1,10 +1,11 @@
 (function () {
-  const GEMINI_API_KEY = "AQ.Ab8RN6KgSC0sZQrA9VXRKWisTh9jCwBl0M2aFuXMBegzyl8cXQ"; // <-- Place your actual Gemini API Key here
+  // 1. Apni real Gemini API key quotes ke andar paste karein
+  const GEMINI_API_KEY = "AQ.Ab8RN6KgSC0sZQrA9VXRKWisTh9jCwBl0M2aFuXMBegzyl8cXQ"; 
 
-  const SYSTEM_PROMPT = `You are the official AI Admission Assistant for Dow Institute of Health Sciences (DIHS). Answer student queries accurately and politely based on official college information. Keep answers concise and helpful.`;
+  // 2. DIHS Website Knowledge Base Data
+  const SYSTEM_PROMPT = `You are the official AI Admission Assistant for Dow Institute of Health Sciences (DIHS). Answer student queries accurately based on official college information. Keep responses helpful, polite, and concise.`;
 
   function initWidget() {
-    // 1. Inject HTML into body automatically
     const widgetContainer = document.createElement("div");
     widgetContainer.id = "dihs-widget-root";
     widgetContainer.innerHTML = `
@@ -25,7 +26,6 @@
     `;
     document.body.appendChild(widgetContainer);
 
-    // 2. DOM Elements
     const toggleBtn = document.getElementById("chat-toggle-btn");
     const closeBtn = document.getElementById("chat-close-btn");
     const chatBox = document.getElementById("chat-box");
@@ -33,11 +33,9 @@
     const inputField = document.getElementById("chat-input");
     const messagesContainer = document.getElementById("chat-messages");
 
-    // 3. Toggle Chatbox
     toggleBtn.addEventListener("click", () => chatBox.classList.toggle("hidden"));
     closeBtn.addEventListener("click", () => chatBox.classList.add("hidden"));
 
-    // 4. Send Message Logic
     async function sendMessage() {
       const query = inputField.value.trim();
       if (!query) return;
@@ -48,6 +46,7 @@
       const loadingMsg = appendMessage("Typing...", "bot");
 
       try {
+        // Fast and Stable Gemini Flash Endpoint
         const response = await fetch(
           `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
           {
@@ -57,7 +56,7 @@
               contents: [
                 {
                   role: "user",
-                  parts: [{ text: `${SYSTEM_PROMPT}\n\nUser Question: ${query}` }]
+                  parts: [{ text: `${SYSTEM_PROMPT}\n\nUser Query: ${query}` }]
                 }
               ]
             })
@@ -70,11 +69,13 @@
         if (data.candidates && data.candidates[0]?.content?.parts[0]?.text) {
           appendMessage(data.candidates[0].content.parts[0].text, "bot");
         } else {
-          appendMessage("Sorry, I could not process your request. Please try again.", "bot");
+          console.error("API Error Response:", data);
+          appendMessage("API Key issue or quota limit exceeded. Please verify key in AI Studio.", "bot");
         }
       } catch (err) {
         loadingMsg.remove();
-        appendMessage("Error connecting to server. Please check your network or API key.", "bot");
+        console.error("Fetch Error:", err);
+        appendMessage("Network error. Please try again.", "bot");
       }
     }
 
