@@ -1,6 +1,6 @@
 (function () {
-  // Apni Gemini API key yahan Paste karein
-  const GEMINI_API_KEY = "AQ.Ab8RN6Ka8xE8fIbOYyCnWSxHeMRBahrN2-xfg9PWSsMrOyaokQ"; 
+  // Line 3: Ensure NO extra spaces inside quotes!
+  const GEMINI_API_KEY = "AQ.Ab8RN6KonZ1DnnwtVnfC5z4E8few82v6-DMZDfnf71oYxmRECA"; 
 
   const SYSTEM_PROMPT = `You are the official AI Admission Assistant for Dow Institute of Health Sciences (DIHS). Answer student queries accurately and politely based on official college information. Keep responses helpful, polite, and concise.`;
 
@@ -44,26 +44,30 @@
 
       const loadingMsg = appendMessage("Typing...", "bot");
 
+      // Verify Key before call
+      if (!GEMINI_API_KEY || GEMINI_API_KEY.includes("YOUR_ACTUAL_KEY_HERE")) {
+        loadingMsg.remove();
+        appendMessage("Error: API Key is missing in widget.js file.", "bot");
+        return;
+      }
+
       try {
-        // Updated Header Authentication for Google Gemini API
-        const response = await fetch(
-          "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent",
-          {
-            method: "POST",
-            headers: { 
-              "Content-Type": "application/json",
-              "x-goog-api-key": GEMINI_API_KEY
-            },
-            body: JSON.stringify({
-              contents: [
-                {
-                  role: "user",
-                  parts: [{ text: `${SYSTEM_PROMPT}\n\nUser Query: ${query}` }]
-                }
-              ]
-            })
-          }
-        );
+        const targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(GEMINI_API_KEY.trim())}`;
+        
+        const response = await fetch(targetUrl, {
+          method: "POST",
+          headers: { 
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            contents: [
+              {
+                role: "user",
+                parts: [{ text: `${SYSTEM_PROMPT}\n\nUser Query: ${query}` }]
+              }
+            ]
+          })
+        });
 
         const data = await response.json();
         loadingMsg.remove();
@@ -71,7 +75,7 @@
         if (response.ok && data.candidates && data.candidates[0]?.content?.parts[0]?.text) {
           appendMessage(data.candidates[0].content.parts[0].text, "bot");
         } else {
-          const errDetail = data.error?.message || "Authentication failed or key invalid.";
+          const errDetail = data.error?.message || "Invalid Authentication.";
           appendMessage(`API Error: ${errDetail}`, "bot");
         }
       } catch (err) {
