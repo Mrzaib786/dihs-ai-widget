@@ -1,6 +1,6 @@
 (function () {
   // Line 3: Ensure NO extra spaces inside quotes!
-  const GEMINI_API_KEY = "AQ.Ab8RN6KonZ1DnnwtVnfC5z4E8few82v6-DMZDfnf71oYxmRECA"; 
+  const GEMINI_API_KEY = "AQ.Ab8RN6IG5Zi6Cbdjq-9xVAo9sgZJhD4qDI-YvWpGUwnJWnarBQ"; 
 
   const SYSTEM_PROMPT = `You are the official AI Admission Assistant for Dow Institute of Health Sciences (DIHS). Answer student queries accurately and politely based on official college information. Keep responses helpful, polite, and concise.`;
 
