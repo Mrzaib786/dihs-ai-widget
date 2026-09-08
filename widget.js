@@ -1,11 +1,4 @@
 (function () {
-  // Key automatically Vercel Environment variable se load ho sakti hai ya runtime pass hogi
-  const GEMINI_API_KEY = typeof process !== "undefined" && process.env?.GEMINI_API_KEY 
-    ? process.env.GEMINI_API_KEY 
-    : "";
-
-  const SYSTEM_PROMPT = `You are the official AI Admission Assistant for Dow Institute of Health Sciences (DIHS). Answer student queries accurately and politely based on official college information. Keep responses helpful, polite, and concise.`;
-
   function initWidget() {
     const widgetContainer = document.createElement("div");
     widgetContainer.id = "dihs-widget-root";
@@ -47,34 +40,24 @@
       const loadingMsg = appendMessage("Typing...", "bot");
 
       try {
-        const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              contents: [
-                {
-                  role: "user",
-                  parts: [{ text: `${SYSTEM_PROMPT}\n\nUser Query: ${query}` }]
-                }
-              ]
-            })
-          }
-        );
+        // Calling Vercel Backend Serverless Endpoint
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query })
+        });
 
         const data = await response.json();
         loadingMsg.remove();
 
-        if (response.ok && data.candidates && data.candidates[0]?.content?.parts[0]?.text) {
-          appendMessage(data.candidates[0].content.parts[0].text, "bot");
+        if (response.ok && data.reply) {
+          appendMessage(data.reply, "bot");
         } else {
-          const errDetail = data.error?.message || "Error processing request.";
-          appendMessage(`API Error: ${errDetail}`, "bot");
+          appendMessage(`API Error: ${data.error || "Server issue"}`, "bot");
         }
       } catch (err) {
         loadingMsg.remove();
-        appendMessage("Network connection failed. Please try again.", "bot");
+        appendMessage("Network error. Please try again.", "bot");
       }
     }
 
