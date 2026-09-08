@@ -1,6 +1,8 @@
 (function () {
-  // Line 3: Ensure NO extra spaces inside quotes!
-  const GEMINI_API_KEY = "AQ.Ab8RN6IG5Zi6Cbdjq-9xVAo9sgZJhD4qDI-YvWpGUwnJWnarBQ"; 
+  // Key automatically Vercel Environment variable se load ho sakti hai ya runtime pass hogi
+  const GEMINI_API_KEY = typeof process !== "undefined" && process.env?.GEMINI_API_KEY 
+    ? process.env.GEMINI_API_KEY 
+    : "";
 
   const SYSTEM_PROMPT = `You are the official AI Admission Assistant for Dow Institute of Health Sciences (DIHS). Answer student queries accurately and politely based on official college information. Keep responses helpful, polite, and concise.`;
 
@@ -44,30 +46,22 @@
 
       const loadingMsg = appendMessage("Typing...", "bot");
 
-      // Verify Key before call
-      if (!GEMINI_API_KEY || GEMINI_API_KEY.includes("YOUR_ACTUAL_KEY_HERE")) {
-        loadingMsg.remove();
-        appendMessage("Error: API Key is missing in widget.js file.", "bot");
-        return;
-      }
-
       try {
-        const targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(GEMINI_API_KEY.trim())}`;
-        
-        const response = await fetch(targetUrl, {
-          method: "POST",
-          headers: { 
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            contents: [
-              {
-                role: "user",
-                parts: [{ text: `${SYSTEM_PROMPT}\n\nUser Query: ${query}` }]
-              }
-            ]
-          })
-        });
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [
+                {
+                  role: "user",
+                  parts: [{ text: `${SYSTEM_PROMPT}\n\nUser Query: ${query}` }]
+                }
+              ]
+            })
+          }
+        );
 
         const data = await response.json();
         loadingMsg.remove();
@@ -75,7 +69,7 @@
         if (response.ok && data.candidates && data.candidates[0]?.content?.parts[0]?.text) {
           appendMessage(data.candidates[0].content.parts[0].text, "bot");
         } else {
-          const errDetail = data.error?.message || "Invalid Authentication.";
+          const errDetail = data.error?.message || "Error processing request.";
           appendMessage(`API Error: ${errDetail}`, "bot");
         }
       } catch (err) {
