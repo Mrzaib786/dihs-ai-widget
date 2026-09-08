@@ -1,8 +1,7 @@
 (function () {
-  // 1. Apni real Gemini API key quotes ke andar paste karein
+  // Apni NEW Gemini API Key bilkul sahi quotes ke andar daalein
   const GEMINI_API_KEY = "AQ.Ab8RN6Ka8xE8fIbOYyCnWSxHeMRBahrN2-xfg9PWSsMrOyaokQ"; 
 
-  // 2. DIHS Website Knowledge Base Data
   const SYSTEM_PROMPT = `You are the official AI Admission Assistant for Dow Institute of Health Sciences (DIHS). Answer student queries accurately based on official college information. Keep responses helpful, polite, and concise.`;
 
   function initWidget() {
@@ -46,7 +45,7 @@
       const loadingMsg = appendMessage("Typing...", "bot");
 
       try {
-        // Fast and Stable Gemini Flash Endpoint
+        // Updated v1beta endpoint with gemini-1.5-flash
         const response = await fetch(
           `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
           {
@@ -66,16 +65,16 @@
         const data = await response.json();
         loadingMsg.remove();
 
-        if (data.candidates && data.candidates[0]?.content?.parts[0]?.text) {
+        if (response.ok && data.candidates && data.candidates[0]?.content?.parts[0]?.text) {
           appendMessage(data.candidates[0].content.parts[0].text, "bot");
         } else {
-          console.error("API Error Response:", data);
-          appendMessage("API Key issue or quota limit exceeded. Please verify key in AI Studio.", "bot");
+          // Exact error details show hongi
+          const errDetail = data.error?.message || "Invalid Response";
+          appendMessage(`API Error: ${errDetail}`, "bot");
         }
       } catch (err) {
         loadingMsg.remove();
-        console.error("Fetch Error:", err);
-        appendMessage("Network error. Please try again.", "bot");
+        appendMessage("Network connection failed. Please check internet connection.", "bot");
       }
     }
 
